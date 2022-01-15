@@ -1,5 +1,5 @@
-const vars= {
-    API_URL : 'https://v2.techworlds.com.my'
-}
+const vars = {
+  API_URL: "http://192.168.43.90:3000/",
+};
 
-export default vars
+export default vars;

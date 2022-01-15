@@ -26,20 +26,22 @@ import {
   useNavigationState,
 } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import TabNavigator from "./TabNavigator";
 
 const Stack = createStackNavigator();
 const ProtectedNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        header: (props) => <CustomHeader {...props} />,
+        headerShown: false,
         cardShadowEnabled: true,
         cardOverlayEnabled: false,
         presentation: "card",
         ...TransitionPresets.FadeFromBottomAndroid,
       }}
-      initialRouteName="StaffSetting"
+      initialRouteName="Office"
     >
+      <Stack.Screen name="Office" component={TabNavigator} />
       <Stack.Screen name="Home" component={DrawerNavigator} />
       <Stack.Screen name="Order" component={OrderScreen} />
       <Stack.Screen name="Payment" component={PaymentScreen} />
@@ -64,7 +66,6 @@ const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
       safeAreaTop
     >
       <Flex direction="row" align="center">
-        
         {routeName === "Payment" ? (
           <IconButton
             _icon={{
@@ -74,7 +75,6 @@ const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
             py={4}
             colorScheme="primary"
             icon={<Icon as={Ionicons} name="arrow-back" size="sm" />}
-            
             onPress={() => navigation.goBack()}
           />
         ) : (
@@ -111,24 +111,6 @@ const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
             />
           }
           onPress={useColorMode().toggleColorMode}
-        />
-        <IconButton
-          ml={6}
-          _pressed={{
-            bg: useColorModeValue("greyColor.50", "greyColor.800"),
-          }}
-          icon={
-            <Icon
-              as={Ionicons}
-              name="settings-outline"
-              size="sm"
-              color={useColorModeValue(
-                "iconColor.lightGrey",
-                "iconColor.darkGrey"
-              )}
-            />
-          }
-          onPress={() => navigation.navigate("Home", { screen: "Setting" })}
         />
       </Flex>
     </Flex>

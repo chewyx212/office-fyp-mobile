@@ -1,12 +1,12 @@
-
 import axios from "../utils/axios/AxiosHandler";
 
 export const AuthApi = {
-  merchantLogin: async (data: { input: string; password: string }) => {
-    return axios.post("/api/pos/login", data);
+  login: async (data: { email: string; password: string }) => {
+    console.log('im calling')
+    return axios.post("/signin", data);
   },
-  counterLogin: async (payload: { pos_password: string }) => {
-    return axios.post("/api/pos/login-counter", payload);
+  register: async (data: { email: string; name: string; password: string }) => {
+    return axios.post("/signup", data);
   },
   updatePasscode: async (payload: {
     user_id: string;

@@ -39,66 +39,50 @@ const LoginScreen = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      navigation.navigate("Passcode");
+      // navigation.navigate("Passcode");
+      console.log("asssssssssssssssssssssssssssssss");
     } else {
       getTokenFromAsyncStorage();
     }
   }, []);
 
   const getTokenFromAsyncStorage = async () => {
-    const token = await AsyncStorage.getItem("token");
-    const user = await AsyncStorage.getItem("user");
-    const loginpass = await AsyncStorage.getItem("loginpass");
-    const restaurantInfo = await AsyncStorage.getItem("restaurantInfo");
-    // dispatch(logout());
-    if (token && user && loginpass && restaurantInfo) {
-      dispatch(
-        login({
-          token,
-          user: JSON.parse(user),
-          loginpass: JSON.parse(loginpass),
-          restaurantInfo: JSON.parse(restaurantInfo),
-        })
-      );
-      navigation.navigate("Passcode");
-    }
+    // const token = await AsyncStorage.getItem("token");
+    // const user = await AsyncStorage.getItem("user");
+    // // dispatch(logout());
+    // if (token && user && loginpass && restaurantInfo) {
+    //   dispatch(
+    //     login({
+    //       token,
+    //       user: JSON.parse(user),
+    //       loginpass: JSON.parse(loginpass),
+    //       restaurantInfo: JSON.parse(restaurantInfo),
+    //     })
+    //   );
+    //   navigation.navigate("Passcode");
+    // }
   };
 
   const onSubmit = async (field: Inputs) => {
+    console.log("asdasdasdasdasdasd");
     const payload = {
-      input: field.email,
+      email: field.email,
       password: field.password,
     };
-    const { data } = await AuthApi.merchantLogin(payload);
-    console.log(data);
-    if (data.status === 707) {
-      AsyncStorage.setItem("token", data.response.token);
-      AsyncStorage.setItem("user", JSON.stringify(data.response.user));
-      AsyncStorage.setItem(
-        "loginpass",
-        JSON.stringify(data.response.login_pass)
-      );
-      AsyncStorage.setItem(
-        "restaurantInfo",
-        JSON.stringify(data.response.restaurant)
-      );
-      console.log(data.response)
+    const result = await AuthApi.login(payload);
+    console.log("asdasd");
+    console.log(result);
+    if (result.status === 201) {
+      AsyncStorage.setItem("token", result.data.token);
+      AsyncStorage.setItem("user", JSON.stringify(result.data.user));
+      console.log(result.data);
       dispatch(
         login({
-          token: data.response.token,
-          user: data.response.user,
-          loginpass: data.response.login_pass,
-          restaurantInfo: data.response.restaurant,
+          token: result.data.token,
+          user: result.data.user,
         })
       );
       navigation.navigate("Passcode");
-    } else if (data.status === 701) {
-      await toast.closeAll();
-      toast.show({
-        title: "Email or password is wrong!",
-        status: "error",
-        placement: "top",
-      });
     } else {
       await toast.closeAll();
       toast.show({
@@ -136,14 +120,6 @@ const LoginScreen = () => {
             h="100%"
             w={{ base: "300px", md: "450px" }}
           >
-            <Image
-              w="80%"
-              maxH="10%"
-              mb="25%"
-              resizeMode="contain"
-              alt="menuworlds"
-              source={require("./../../assets/menuworlds.png")}
-            />
             <Controller
               control={control}
               rules={{

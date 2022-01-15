@@ -11,15 +11,12 @@ const AppNavigator = () => {
   let isAuth = false;
 
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
-  const isPasscodeVerified = useAppSelector(
-    (state) => state.auth.isPasscodeVerified
-  );
 
   return (
     <NavigationContainer>
       <ProtectedNavigator />
-      {/* {(!isLoggedIn || !isPasscodeVerified) && <AuthNavigator />}
-      {isLoggedIn && isPasscodeVerified && <ProtectedNavigator />} */}
+      {/* {!isLoggedIn && <AuthNavigator />}
+      {isLoggedIn && <ProtectedNavigator />} */}
     </NavigationContainer>
   );
 };

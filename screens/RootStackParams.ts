@@ -17,7 +17,7 @@ export type RootStackParamList = {
   Menu: undefined;
   Transaction: undefined;
   Setting: undefined;
-  Payment:  {
+  Payment: {
     order: any;
   };
 
@@ -26,4 +26,7 @@ export type RootStackParamList = {
   GlobalSetting: undefined;
   StaffSetting: undefined;
   AccountSetting: undefined;
+
+  OfficeHome: undefined;
+  OfficeProfile: undefined;
 };
