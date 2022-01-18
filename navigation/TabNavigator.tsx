@@ -17,13 +17,12 @@ import {
   Image,
   Menu,
 } from "native-base";
-import MenuScreen from "../screens/MenuScreen";
-import MemberScreen from "../screens/MemberScreen";
-import TransactionScreen from "../screens/TransactionScreen";
-import SettingScreen from "../screens/SettingSceen";
-import SettingNavigator from "./SettingNavigator";
-import HomeScreen from "../screens/HomeScreen";
-import ProfileScreen from "../screens/ProfileScreen";
+import HomeScreen from "../screens/office/HomeScreen";
+import ProfileScreen from "../screens/office/ProfileScreen";
+import LandingScreen from "../screens/office/LandingScreen";
+import DeskScreen from "../screens/office/DeskScreen";
+import AddDeskScreen from "../screens/office/AddDeskScreen";
+import AreaScreen from "../screens/office/AreaScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -40,7 +39,12 @@ const TabNavigator = () => {
       initialRouteName="OfficeHome"
     >
       <Tab.Screen name="OfficeHome" component={HomeScreen} />
+      <Tab.Screen name="OfficeLanding" component={LandingScreen} />
       <Tab.Screen name="OfficeProfile" component={ProfileScreen} />
+      <Tab.Screen name="OfficeDesk" component={DeskScreen} />
+      <Tab.Screen name="OfficeArea" component={AreaScreen} />
+      <Tab.Screen name="OfficeAddDesk" component={AddDeskScreen} />
+      <Tab.Screen name="OfficeRoom" component={DeskScreen} />
     </Tab.Navigator>
   );
 };
@@ -62,14 +66,30 @@ const CustomTabBar = (props: BottomTabBarProps) => {
       }}
       shadow={3}
     >
-      <Flex direction="column" align="center">
-        <Icon
-          color={useColorModeValue("greyColor.900", "greyColor.600")}
-          as={FontAwesome}
-          name="building-o"
-          size={5}
-        />
-      </Flex>
+      <Menu
+        placement="top"
+        trigger={(triggerProps) => {
+          return (
+            <Pressable accessibilityLabel="More options menu" {...triggerProps}>
+              <Flex direction="column" align="center">
+                <Icon
+                  color={useColorModeValue("greyColor.900", "greyColor.600")}
+                  as={FontAwesome}
+                  name="building-o"
+                  size={5}
+                />
+              </Flex>
+            </Pressable>
+          );
+        }}
+      >
+        <Menu.Item onPress={() => props.navigation.navigate("OfficeDesk")}>
+          Desk
+        </Menu.Item>
+        <Menu.Item onPress={() => props.navigation.navigate("OfficeRoom")}>
+          Room
+        </Menu.Item>
+      </Menu>
 
       <Menu
         placement="top"
@@ -86,18 +106,24 @@ const CustomTabBar = (props: BottomTabBarProps) => {
           );
         }}
       >
-        <Menu.Item>Book Desk</Menu.Item>
-        <Menu.Item>Book Room</Menu.Item>
+        <Menu.Item onPress={() => props.navigation.navigate("OfficeArea")}>
+          Book Desk
+        </Menu.Item>
+        <Menu.Item onPress={() => props.navigation.navigate("OfficeRoom")}>
+          Book Room
+        </Menu.Item>
       </Menu>
 
-      <Flex direction="column" align="center">
-        <Icon
-          color={useColorModeValue("greyColor.900", "greyColor.600")}
-          as={FontAwesome}
-          name="user-o"
-          size={5}
-        />
-      </Flex>
+      <Pressable>
+        <Flex direction="column" align="center">
+          <Icon
+            color={useColorModeValue("greyColor.900", "greyColor.600")}
+            as={FontAwesome}
+            name="user-o"
+            size={5}
+          />
+        </Flex>
+      </Pressable>
     </Flex>
   );
 };

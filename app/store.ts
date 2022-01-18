@@ -3,10 +3,12 @@ import authReducer from "./auth/authSlice";
 import cartReducer from "./cart/cartSlice";
 import orderReducer from "./order/orderSlice";
 import stockReducer from "./stock/stockSlice";
+import companyReducer from "./company/companySlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    company: companyReducer,
     cart: cartReducer,
     order: orderReducer,
     stock: stockReducer,

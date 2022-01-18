@@ -29,4 +29,12 @@ export type RootStackParamList = {
 
   OfficeHome: undefined;
   OfficeProfile: undefined;
+  OfficeLanding: undefined;
+  OfficeDesk: undefined;
+  OfficeAddDesk: {
+    areaId: string;
+  };
+  OfficeArea: undefined;
+  OfficeRoom: undefined;
+  OfficeAddRoom: undefined;
 };

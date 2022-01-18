@@ -26,10 +26,10 @@ import {
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
-import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { RootStackParamList } from "./RootStackParams";
-import { logout } from "../app/auth/authSlice";
+import { RootStackParamList } from "../RootStackParams";
+import { logout } from "../../app/auth/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 

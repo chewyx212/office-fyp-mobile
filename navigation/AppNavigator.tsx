@@ -14,9 +14,9 @@ const AppNavigator = () => {
 
   return (
     <NavigationContainer>
-      <ProtectedNavigator />
-      {/* {!isLoggedIn && <AuthNavigator />}
-      {isLoggedIn && <ProtectedNavigator />} */}
+      {/* <ProtectedNavigator /> */}
+      {!isLoggedIn && <AuthNavigator />}
+      {isLoggedIn && <ProtectedNavigator />}
     </NavigationContainer>
   );
 };

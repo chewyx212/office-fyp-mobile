@@ -39,39 +39,32 @@ const LoginScreen = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      // navigation.navigate("Passcode");
-      console.log("asssssssssssssssssssssssssssssss");
+      navigation.navigate("OfficeHome");
     } else {
       getTokenFromAsyncStorage();
     }
   }, []);
 
   const getTokenFromAsyncStorage = async () => {
-    // const token = await AsyncStorage.getItem("token");
-    // const user = await AsyncStorage.getItem("user");
-    // // dispatch(logout());
-    // if (token && user && loginpass && restaurantInfo) {
-    //   dispatch(
-    //     login({
-    //       token,
-    //       user: JSON.parse(user),
-    //       loginpass: JSON.parse(loginpass),
-    //       restaurantInfo: JSON.parse(restaurantInfo),
-    //     })
-    //   );
-    //   navigation.navigate("Passcode");
-    // }
+    const token = await AsyncStorage.getItem("token");
+    const user = await AsyncStorage.getItem("user");
+    // dispatch(logout());
+    if (token && user) {
+      dispatch(
+        login({
+          token,
+          user: JSON.parse(user),
+        })
+      );
+    }
   };
 
   const onSubmit = async (field: Inputs) => {
-    console.log("asdasdasdasdasdasd");
     const payload = {
       email: field.email,
       password: field.password,
     };
     const result = await AuthApi.login(payload);
-    console.log("asdasd");
-    console.log(result);
     if (result.status === 201) {
       AsyncStorage.setItem("token", result.data.token);
       AsyncStorage.setItem("user", JSON.stringify(result.data.user));
@@ -82,7 +75,6 @@ const LoginScreen = () => {
           user: result.data.user,
         })
       );
-      navigation.navigate("Passcode");
     } else {
       await toast.closeAll();
       toast.show({

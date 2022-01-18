@@ -26,19 +26,19 @@ import {
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
-import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { RootStackParamList } from "./RootStackParams";
-import { logout } from "../app/auth/authSlice";
+import { RootStackParamList } from "../RootStackParams";
+import { logout } from "../../app/auth/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 
-type HomeScreenNavigationProp = BottomTabNavigationProp<
+type LandingScreenNavigationProp = BottomTabNavigationProp<
   RootStackParamList,
-  "OfficeHome"
+  "OfficeLanding"
 >;
-type HomeScreenRouteProp = RouteProp<RootStackParamList, "OfficeHome">;
-const HomeScreen = () => {
+type LandingScreenRouteProp = RouteProp<RootStackParamList, "OfficeLanding">;
+const LandingScreen = () => {
   const dummyAnnouncements = [
     {
       time: "Monday, 24 January 2022",
@@ -56,8 +56,8 @@ const HomeScreen = () => {
   const [announcements, setAnnouncements] = useState<any[]>(dummyAnnouncements);
   const cancelRef = useRef(null);
   const toast = useToast();
-  const navigation = useNavigation<HomeScreenNavigationProp>();
-  const route = useRoute<HomeScreenRouteProp>();
+  const navigation = useNavigation<ProfileScreenNavigationProp>();
+  const route = useRoute<ProfileScreenRouteProp>();
   const dispatch = useAppDispatch();
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
   const token = useAppSelector((state) => state.auth.token);
@@ -87,7 +87,7 @@ const HomeScreen = () => {
             fontSize={20}
             fontWeight="700"
           >
-            Southern HQ
+            Profile
           </Heading>
         </Flex>
         <Flex
@@ -102,18 +102,19 @@ const HomeScreen = () => {
           <Text fontFamily="sf-pro-text-regular" fontSize={15} fontWeight="500">
             Monday, 24 January 2022
           </Text>
-          <Flex direction="row" my={2} align="center">
+          <Flex direction="row" my={2}>
             <Text
               fontFamily="sf-pro-text-semibold"
               fontSize={17}
               fontWeight="700"
             >
-              Check In to{" "}
+              Check In to
             </Text>
             <Text
+              pl={1}
               fontFamily="sf-pro-text-semibold"
               fontSize={17}
-              fontWeight="700"
+              fontWeight="600"
               color={useColorModeValue("themeColor.500", "themeColor.400")}
             >
               Southern HQ
@@ -255,4 +256,4 @@ const HomeScreen = () => {
   );
 };
 
-export default HomeScreen;
+export default LandingScreen;
