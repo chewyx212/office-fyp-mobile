@@ -27,6 +27,7 @@ import {
 } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import TabNavigator from "./TabNavigator";
+import RoomStackNavigator from "./RoomStackNavigator";
 
 const Stack = createStackNavigator();
 const ProtectedNavigator = () => {
@@ -42,11 +43,12 @@ const ProtectedNavigator = () => {
       initialRouteName="Office"
     >
       <Stack.Screen name="Office" component={TabNavigator} />
-      <Stack.Screen name="Home" component={DrawerNavigator} />
+      <Stack.Screen name="OfficeRoom" component={RoomStackNavigator} />
+      {/* <Stack.Screen name="Home" component={DrawerNavigator} />
       <Stack.Screen name="Order" component={OrderScreen} />
       <Stack.Screen name="Payment" component={PaymentScreen} />
       <Stack.Screen name="Camera" component={CameraScreen} />
-      <Stack.Screen name="Printer" component={PrinterScreen} />
+      <Stack.Screen name="Printer" component={PrinterScreen} /> */}
     </Stack.Navigator>
   );
 };

@@ -49,17 +49,20 @@ import {
 import { Platform, RefreshControl } from "react-native";
 import { DeskApi } from "../../api/DeskApi";
 import { AreaType } from "../../types/areaType";
+import ENV from "../../env";
 
 type AddDeskScreenNavigationProp = BottomTabNavigationProp<
   RootStackParamList,
   "OfficeAddDesk"
 >;
+
+type LatLng = [Number, Number];
 type AddDeskScreenRouteProp = RouteProp<RootStackParamList, "OfficeAddDesk">;
 const AddDeskScreen = () => {
   const [deskSchedules, setDeskSchedules] = useState<any[]>([]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(true);
-  const [selectedArea, setSelectedArea] = useState<AreaType>([]);
-  const [deskList, setDeskList] = useState<DeskType[]>([]);
+  const [selectedArea, setSelectedArea] = useState<AreaType>();
+  // const [deskList, setDeskList] = useState<DeskType[]>([]);
   const [chooseBranchModal, setChooseBranchModal] = useState<boolean>(false);
   useState<boolean>(true);
   const cancelRef = useRef(null);
@@ -73,6 +76,7 @@ const AddDeskScreen = () => {
   const selectedBranch = useAppSelector(
     (state) => state.company.selectedBranch
   );
+
   useEffect(() => {
     if (isLoggedIn && token && selectedBranch) {
       console.log("areaId");
@@ -89,8 +93,15 @@ const AddDeskScreen = () => {
       const result = await DeskApi.getOneArea(areaId);
       if (result.status === 200) {
         console.log(result.data);
-        if (result.data.length) {
-          setSelectedArea(result.data);
+        console.log("re");
+        if (result.data) {
+          setSelectedArea({
+            id: result.data.id,
+            name: result.data.name,
+            status: result.data.status,
+            imagePath: ENV.API_URL + result.data.image,
+          });
+          console.log(ENV.API_URL + result.data.image);
         }
       }
     } else {
@@ -107,22 +118,25 @@ const AddDeskScreen = () => {
         }
         _contentContainerStyle={{ pb: 16 }}
       >
-        <Flex direction="row" w="100%" align="center" my={5}>
-          {/* <Image
-                  w="150px"
-                  h="50%"
-          resizeMode="contain"
-          alt="menuworlds"
-          source={require("./../assets/menuworlds_black.png")}
-        /> */}
-          <Heading
-            fontFamily="sf-pro-text-semibold"
-            fontSize={20}
-            fontWeight="800"
-          >
-            Select Desk
-          </Heading>
-        </Flex>
+        {selectedArea && (
+          <>
+            <Flex direction="row" w="100%" align="center" my={5}>
+              <Heading
+                fontFamily="sf-pro-text-semibold"
+                fontSize={20}
+                fontWeight="800"
+              >
+                Select Desk
+              </Heading>
+            </Flex>
+            <Image
+              w="100%"
+              h="100%"
+              alt="bg image"
+              source={{ uri: selectedArea.imagePath }}
+            />
+          </>
+        )}
       </ScrollView>
     </VStack>
   );

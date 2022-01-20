@@ -11,7 +11,8 @@ const AppNavigator = () => {
   let isAuth = false;
 
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
-
+  console.log("isLoggedIn");
+  console.log(isLoggedIn);
   return (
     <NavigationContainer>
       {/* <ProtectedNavigator /> */}

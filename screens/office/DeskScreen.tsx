@@ -128,20 +128,13 @@ const DeskScreen = () => {
           align="center"
           my={5}
         >
-          {/* <Image
-                  w="150px"
-                  h="50%"
-          resizeMode="contain"
-          alt="menuworlds"
-          source={require("./../assets/menuworlds_black.png")}
-        /> */}
           <Flex></Flex>
           <Heading
             fontFamily="sf-pro-text-semibold"
             fontSize={20}
             fontWeight="800"
           >
-            Desk
+            Scheduled Desk
           </Heading>
 
           <Pressable onPress={() => navigation.navigate("OfficeArea")}>
@@ -192,6 +185,7 @@ const DeskScreen = () => {
               </Flex>
             );
           })}
+        {deskSchedules.length < 1 && !isRefreshing && <Text>No Schedule Found</Text>}
       </ScrollView>
     </VStack>
   );

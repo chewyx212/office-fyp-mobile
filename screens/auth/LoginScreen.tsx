@@ -65,6 +65,7 @@ const LoginScreen = () => {
       password: field.password,
     };
     const result = await AuthApi.login(payload);
+    console.log(payload);
     if (result.status === 201) {
       AsyncStorage.setItem("token", result.data.token);
       AsyncStorage.setItem("user", JSON.stringify(result.data.user));

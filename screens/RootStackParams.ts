@@ -31,10 +31,16 @@ export type RootStackParamList = {
   OfficeProfile: undefined;
   OfficeLanding: undefined;
   OfficeDesk: undefined;
+  OfficeDeskList: undefined;
+  OfficeDeskSchedule: undefined;
   OfficeAddDesk: {
     areaId: string;
   };
   OfficeArea: undefined;
   OfficeRoom: undefined;
-  OfficeAddRoom: undefined;
+  OfficeRoomList: undefined;
+  OfficeRoomSchedule: undefined;
+  OfficeAddRoomSchedule: {
+    roomId: string;
+  };
 };

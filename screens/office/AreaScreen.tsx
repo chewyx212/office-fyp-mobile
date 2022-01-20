@@ -50,6 +50,7 @@ import { Platform, RefreshControl } from "react-native";
 import { DeskApi } from "../../api/DeskApi";
 import { AreaType } from "../../types/areaType";
 
+
 type AreaScreenNavigationProp = BottomTabNavigationProp<
   RootStackParamList,
   "OfficeArea"
@@ -104,57 +105,58 @@ const AreaScreen = () => {
         }
         _contentContainerStyle={{ pb: 16 }}
       >
-        <Flex direction="row" w="100%" align="center" my={5}>
-          {/* <Image
-                  w="150px"
-                  h="50%"
-          resizeMode="contain"
-          alt="menuworlds"
-          source={require("./../assets/menuworlds_black.png")}
-        /> */}
-          <Heading
-            fontFamily="sf-pro-text-semibold"
-            fontSize={20}
-            fontWeight="800"
-          >
-            Choose Area
-          </Heading>
-        </Flex>
-        {areaList.length > 0 &&
-          areaList.map((area) => {
-            return (
-              <Pressable
-                key={area.id}
-                onPress={() =>
-                  navigation.navigate("OfficeAddDesk", { areaId: area.id })
-                }
+        {!isRefreshing && (
+          <>
+            <Flex direction="row" w="100%" align="center" my={5}>
+             
+              <Heading
+                fontFamily="sf-pro-text-semibold"
+                fontSize={20}
+                fontWeight="800"
               >
-                <Flex
-                  direction="row"
-                  justify="space-between"
-                  bg={useColorModeValue("white", "greyColor.1000")}
-                  borderRadius="xl"
-                  px={5}
-                  py={5}
-                  my={1}
-                >
-                  <Text
-                    fontFamily="sf-pro-text-medium"
-                    fontSize={15}
-                    fontWeight="700"
+                Choose Area
+              </Heading>
+            </Flex>
+            {areaList.length > 0 &&
+              areaList.map((area) => {
+                return (
+                  <Pressable
+                    key={area.id}
+                    onPress={() =>
+                      navigation.navigate("OfficeAddDesk", { areaId: area.id })
+                    }
                   >
-                    {area.name}
-                  </Text>
-                  <Icon
-                    color={useColorModeValue("themeColor.500", "greyColor.600")}
-                    as={FontAwesome}
-                    name="chevron-right"
-                    size={4}
-                  />
-                </Flex>
-              </Pressable>
-            );
-          })}
+                    <Flex
+                      direction="row"
+                      justify="space-between"
+                      bg={useColorModeValue("white", "greyColor.1000")}
+                      borderRadius="xl"
+                      px={5}
+                      py={5}
+                      my={1}
+                    >
+                      <Text
+                        fontFamily="sf-pro-text-medium"
+                        fontSize={15}
+                        fontWeight="700"
+                      >
+                        {area.name}
+                      </Text>
+                      <Icon
+                        color={useColorModeValue(
+                          "themeColor.500",
+                          "greyColor.600"
+                        )}
+                        as={FontAwesome}
+                        name="chevron-right"
+                        size={4}
+                      />
+                    </Flex>
+                  </Pressable>
+                );
+              })}
+          </>
+        )}
       </ScrollView>
     </VStack>
   );

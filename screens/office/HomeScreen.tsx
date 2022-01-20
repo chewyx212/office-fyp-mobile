@@ -94,7 +94,8 @@ const HomeScreen = () => {
   const getUserDetail = async () => {
     setIsRefreshing(true);
     const result = await AuthApi.getDetail();
-    if (result.status === 200) {
+    console.log(result)
+    if (result && result.status === 200) {
       let branchList: BranchState[] = [];
       if (result.data.branches.length > 0) {
         result.data.branches.forEach((branch: BranchState) => {
@@ -153,13 +154,6 @@ const HomeScreen = () => {
               align="center"
               my={5}
             >
-              {/* <Image
-                  w="150px"
-                  h="50%"
-          resizeMode="contain"
-          alt="menuworlds"
-          source={require("./../assets/menuworlds_black.png")}
-        /> */}
               <Heading
                 fontFamily="sf-pro-text-semibold"
                 fontSize={20}
@@ -318,7 +312,7 @@ const HomeScreen = () => {
                       fontSize={13}
                       fontWeight="500"
                     >
-                      {new Date(schedule.datetime).toLocaleString()}
+                      {schedule.date}
                     </Text>
                     <Text
                       fontFamily="sf-pro-text-medium"

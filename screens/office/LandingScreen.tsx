@@ -75,13 +75,6 @@ const LandingScreen = () => {
     <VStack safeAreaTop h="100%" mx={4}>
       <ScrollView _contentContainerStyle={{ pb: 16 }}>
         <Flex direction="row" w="100%" justify="center" align="center" my={5}>
-          {/* <Image
-                  w="150px"
-                  h="50%"
-          resizeMode="contain"
-          alt="menuworlds"
-          source={require("./../assets/menuworlds_black.png")}
-        /> */}
           <Heading
             fontFamily="sf-pro-text-semibold"
             fontSize={20}
