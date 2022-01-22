@@ -48,6 +48,7 @@ import { RoomApi } from "../../api/RoomApi";
 import { timeList } from "../../assets/DUMMY_TIME";
 import { RoomType } from "../../types/roomType";
 import moment, { Moment } from "moment";
+import { AuthApi } from "../../api/AuthApi";
 
 type AllScheduleScreenNavigationProp = BottomTabNavigationProp<
   RootStackParamList,
@@ -66,10 +67,8 @@ const AllScheduleScreen = () => {
   } = useForm<{ duration: string }>();
   const [isRefreshing, setIsRefreshing] = useState<boolean>(true);
   const [selectedCategory, setSelectedCategory] = useState<number>(1);
-  const [openBook, setOpenBook] = useState<boolean>(false);
-  const [show, setShow] = useState(false);
+  const [allScheduleList, setAllScheduleList] = useState<any[]>([]);
   const [date, setDate] = useState<Date>(new Date());
-  const [roomList, setRoomList] = useState<any[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<RoomType | undefined>();
   useState<boolean>(true);
   const cancelRef = useRef(null);
@@ -98,7 +97,7 @@ const AllScheduleScreen = () => {
   ];
   useEffect(() => {
     if (isLoggedIn && token && selectedBranch) {
-      getAllRoomSchedule();
+      getUserDetail();
     } else {
       setIsRefreshing(false);
       navigation.navigate("OfficeHome");
@@ -106,53 +105,62 @@ const AllScheduleScreen = () => {
     }
   }, []);
 
-  const getAllRoomSchedule = async () => {
+  const getUserDetail = async () => {
     setIsRefreshing(true);
-    if (selectedBranch) {
-      const result = await RoomApi.getAllRoomSchedule(selectedBranch.id);
-      if (result.status === 200) {
-        if (result.data.length > 0) {
-          let scheduleList = result.data.map((data) => {
-            let startTime = timeList.find(
-              (time) => time.id === data.startTime
-            )?.time;
-            let endTime = timeList.find(
-              (time) => time.id === data.endTime
-            )?.time;
-            return {
-              id: data.id,
-              room: data.room,
-              date: moment(data.date, "YYYYMMDD"),
-              startTime,
-              endTime,
-            };
-          });
+    const result = await AuthApi.getDetail();
+    if (result && result.status === 200) {
+      let scheduleArray = [];
+      let roomScheduleFromHttp = [];
+      let deskScheduleFromHttp = [];
+      if (result.data.roomSchedules.length > 0) {
+        roomScheduleFromHttp = result.data.roomSchedules.map((data) => {
+          let startTime = timeList.find(
+            (time) => time.id === data.startTime
+          )?.time;
+          let endTime = timeList.find((time) => time.id === data.endTime)?.time;
+          return {
+            id: data.id,
+            room: data.room,
+            date: moment(data.date, "YYYYMMDD"),
+            startTime,
+            endTime,
+            type: "room",
+          };
+        });
+        roomScheduleFromHttp.sort((a, b) =>
+          a.date < b.date ? -1 : a.date > b.date ? 1 : 0
+        );
+      }
 
-          scheduleList.sort((a, b) =>
-            a.date < b.date ? -1 : a.date > b.date ? 1 : 0
-          );
+      if (result.data.deskSchedules.length > 0) {
+        deskScheduleFromHttp = result.data.deskSchedules.map((data) => {
+          return {
+            id: data.id,
+            date: moment(data.date, "YYYYMMDD"),
+            desk: {
+              id: data.desk.id,
+              name: data.desk.name,
+              detail: data.desk.detail,
+            },
+            area: data.desk.area.name,
+            type: "desk",
+          };
+        });
+        deskScheduleFromHttp.sort((a, b) =>
+          a.date < b.date ? -1 : a.date > b.date ? 1 : 0
+        );
+      }
 
-          setRoomList(scheduleList);
-        }
+      if (roomScheduleFromHttp.length > 0 || deskScheduleFromHttp.length > 0) {
+        console.log(deskScheduleFromHttp);
+        scheduleArray = [...deskScheduleFromHttp, ...roomScheduleFromHttp];
+        scheduleArray.sort((a, b) =>
+          a.date < b.date ? -1 : a.date > b.date ? 1 : 0
+        );
+        setAllScheduleList(scheduleArray);
       }
     }
     setIsRefreshing(false);
-  };
-
-  const onSelectRoom = (room: RoomType) => {
-    navigation.navigate("OfficeAddRoomSchedule", { roomId: room.id });
-    // setSelectedRoom(room);
-    // setOpenBook(true);
-  };
-
-  const onCloseBook = () => {
-    setSelectedRoom(undefined);
-    setOpenBook(false);
-  };
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShow(Platform.OS === "ios");
-    setDate(currentDate);
   };
 
   return (
@@ -162,7 +170,7 @@ const AllScheduleScreen = () => {
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}
-              onRefresh={getAllRoomSchedule}
+              onRefresh={getUserDetail}
             />
           }
           _contentContainerStyle={{ pb: 16 }}
@@ -192,10 +200,10 @@ const AllScheduleScreen = () => {
                   textAlign="center"
                   flex={1}
                   fontFamily="sf-pro-text-semibold"
-                  fontSize={18}
+                  fontSize={20}
                   fontWeight="800"
                 >
-                  Scheduled Room
+                  Scheduled
                 </Heading>
                 <Flex flex={1}></Flex>
               </Flex>
@@ -261,76 +269,150 @@ const AllScheduleScreen = () => {
                   })}
                 </ScrollView>
               </Stack>
-              {roomList.length > 0 &&
-                selectedCategory === 2 &&
-                roomList.map((room) => {
-                  return (
-                    <Pressable key={room.id}>
-                      <Flex
-                        direction="row"
-                        justify="space-between"
-                        align="center"
-                        bg={useColorModeValue("white", "greyColor.1000")}
-                        borderRadius="xl"
-                        pr={5}
-                        pl={2}
-                        py={2}
-                        my={1}
-                      >
-                        <Flex direction="row">
-                          <Image
-                            size={"lg"}
-                            mr={5}
-                            borderRadius="sm"
-                            source={require("./../../assets/snooker.jpg")}
-                            alt="room image"
-                          />
-                          <Flex>
-                            <Text
-                              fontFamily="sf-pro-text-medium"
-                              fontSize={15}
-                              fontWeight="700"
-                            >
-                              {room.room.name}
-                            </Text>
+              {allScheduleList.length > 0 &&
+                allScheduleList.map((schedule) => {
+                  if (
+                    schedule.type === "room" &&
+                    (selectedCategory === 1 || selectedCategory === 2)
+                  ) {
+                    return (
+                      <Pressable key={schedule.id}>
+                        <Flex
+                          direction="row"
+                          justify="space-between"
+                          align="center"
+                          bg={useColorModeValue("white", "greyColor.1000")}
+                          borderRadius="xl"
+                          pr={5}
+                          pl={2}
+                          py={2}
+                          my={1}
+                        >
+                          <Flex direction="row">
+                            <Image
+                              size={"lg"}
+                              mr={5}
+                              borderRadius="sm"
+                              source={require("./../../assets/snooker.jpg")}
+                              alt="room image"
+                            />
+                            <Flex>
+                              <Text
+                                fontFamily="sf-pro-text-medium"
+                                fontSize={15}
+                                fontWeight="700"
+                              >
+                                {schedule.room.name}
+                              </Text>
 
-                            <Text
-                              color={useColorModeValue(
-                                "greyColor.400",
-                                "greyColor.400"
-                              )}
-                              fontFamily="sf-pro-text-regular"
-                              fontSize={13}
-                              fontWeight="500"
-                            >
-                              {room.date.format("ll")}
-                            </Text>
-                            <Text
-                              color={useColorModeValue(
-                                "greyColor.400",
-                                "greyColor.400"
-                              )}
-                              fontFamily="sf-pro-text-regular"
-                              fontSize={13}
-                              fontWeight="500"
-                            >
-                              {room.startTime.format("HH:mm")} -
-                              {room.endTime.format("HH:mm")}
-                            </Text>
+                              <Text
+                                color={useColorModeValue(
+                                  "greyColor.400",
+                                  "greyColor.400"
+                                )}
+                                fontFamily="sf-pro-text-regular"
+                                fontSize={13}
+                                fontWeight="500"
+                              >
+                                {schedule.date.format("ll")}
+                              </Text>
+                              <Text
+                                color={useColorModeValue(
+                                  "greyColor.400",
+                                  "greyColor.400"
+                                )}
+                                fontFamily="sf-pro-text-regular"
+                                fontSize={13}
+                                fontWeight="500"
+                              >
+                                {schedule.startTime.format("HH:mm")} -
+                                {schedule.endTime.format("HH:mm")}
+                              </Text>
+                            </Flex>
                           </Flex>
+                          <Icon
+                            color={useColorModeValue(
+                              "themeColor.500",
+                              "greyColor.600"
+                            )}
+                            as={FontAwesome}
+                            name="chevron-right"
+                            size={4}
+                          />
                         </Flex>
-                        <Icon
-                          color={useColorModeValue(
-                            "themeColor.500",
-                            "greyColor.600"
-                          )}
-                          as={FontAwesome}
-                          name="chevron-right"
-                          size={4}
-                        />
-                      </Flex>
-                    </Pressable>
-                  );
+                      </Pressable>
+                    );
+                  } else if (
+                    schedule.type === "desk" &&
+                    (selectedCategory === 1 || selectedCategory === 3)
+                  ) {
+                    return (
+                      <Pressable key={schedule.id}>
+                        <Flex
+                          direction="row"
+                          justify="space-between"
+                          align="center"
+                          bg={useColorModeValue("white", "greyColor.1000")}
+                          borderRadius="xl"
+                          pr={5}
+                          pl={2}
+                          py={2}
+                          my={1}
+                        >
+                          <Flex direction="row">
+                            <Image
+                              size={"lg"}
+                              mr={5}
+                              borderRadius="sm"
+                              source={require("./../../assets/desk.jpg")}
+                              alt="room image"
+                            />
+                            <Flex>
+                              <Text
+                                fontFamily="sf-pro-text-medium"
+                                fontSize={15}
+                                fontWeight="700"
+                              >
+                                {schedule.desk.name}
+                              </Text>
+
+                              <Text
+                                color={useColorModeValue(
+                                  "greyColor.400",
+                                  "greyColor.400"
+                                )}
+                                fontFamily="sf-pro-text-regular"
+                                fontSize={13}
+                                fontWeight="500"
+                              >
+                                {schedule.date.format("ll")}
+                              </Text>
+                              <Text
+                                color={useColorModeValue(
+                                  "greyColor.400",
+                                  "greyColor.400"
+                                )}
+                                fontFamily="sf-pro-text-regular"
+                                fontSize={13}
+                                fontWeight="500"
+                              >
+                                {schedule.area}
+                              </Text>
+                            </Flex>
+                          </Flex>
+                          <Icon
+                            color={useColorModeValue(
+                              "themeColor.500",
+                              "greyColor.600"
+                            )}
+                            as={FontAwesome}
+                            name="chevron-right"
+                            size={4}
+                          />
+                        </Flex>
+                      </Pressable>
+                    );
+                  }
                 })}
             </>
           )}

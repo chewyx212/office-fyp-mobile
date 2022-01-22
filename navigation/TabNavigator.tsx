@@ -61,7 +61,9 @@ const CustomTabBar = (props: BottomTabBarProps) => {
   return (
     <Box
       display={
-        currentRoute === "OfficeRoom" || currentRoute === "OfficeAddRoom"
+        currentRoute === "OfficeDesk" ||
+        currentRoute === "OfficeAddDesk" ||
+        currentRoute === "OfficeArea"
           ? "none"
           : "flex"
       }

@@ -74,6 +74,7 @@ const AddDeskScreen = () => {
       if (result.status === 200) {
         if (result.data) {
           setDesk(result.data);
+          console.log(result.data);
           if (result.data.schedules.length > 0) {
             console.log(result.data.schedules);
             setSchedules(
@@ -116,7 +117,7 @@ const AddDeskScreen = () => {
           isClosable: true,
         });
         setDate(undefined);
-        navigation.navigate("OfficeRoomList");
+        navigation.navigate("OfficeSchedule");
       } else {
         await toast.closeAll();
         toast.show({

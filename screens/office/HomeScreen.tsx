@@ -86,8 +86,6 @@ const HomeScreen = () => {
   );
   useEffect(() => {
     if (isLoggedIn && token) {
-      console.log(isLoggedIn);
-      console.log(token);
       getUserDetail();
     } else {
       dispatch(logout());
@@ -97,7 +95,6 @@ const HomeScreen = () => {
   const getUserDetail = async () => {
     setIsRefreshing(true);
     const result = await AuthApi.getDetail();
-    console.log(result);
     if (result && result.status === 200) {
       let branchList: BranchState[] = [];
       if (result.data.branches.length > 0) {
@@ -116,60 +113,58 @@ const HomeScreen = () => {
         dispatch(saveCompanyBranch({ branches: branchList }));
       }
       let scheduleArray = [];
+      let roomScheduleFromHttp = [];
+      let deskScheduleFromHttp = [];
       if (result.data.roomSchedules.length > 0) {
-        let roomScheduleFromHttp = result.data.roomSchedules.map(
-          (data) => {
-            let startTime = timeList.find(
-              (time) => time.id === data.startTime
-            )?.time;
-            let endTime = timeList.find(
-              (time) => time.id === data.endTime
-            )?.time;
-            return {
-              id: data.id,
-              room: data.room,
-              date: moment(data.date, "YYYYMMDD"),
-              startTime,
-              endTime,
-            };
-          }
-        );
+        roomScheduleFromHttp = result.data.roomSchedules.map((data) => {
+          let startTime = timeList.find(
+            (time) => time.id === data.startTime
+          )?.time;
+          let endTime = timeList.find((time) => time.id === data.endTime)?.time;
+          return {
+            id: data.id,
+            room: data.room,
+            date: moment(data.date, "YYYYMMDD"),
+            startTime,
+            endTime,
+            type: "room",
+          };
+        });
         roomScheduleFromHttp.sort((a, b) =>
           a.date < b.date ? -1 : a.date > b.date ? 1 : 0
         );
-        scheduleArray.push(roomScheduleFromHttp);
         setRoomSchedules(roomScheduleFromHttp);
       }
 
       if (result.data.deskSchedules.length > 0) {
-        let deskScheduleFromHttp = result.data.roomSchedules.map(
-          (data) => {
-            let startTime = timeList.find(
-              (time) => time.id === data.startTime
-            )?.time;
-            let endTime = timeList.find(
-              (time) => time.id === data.endTime
-            )?.time;
-            return {
-              id: data.id,
-              room: data.room,
-              date: moment(data.date, "YYYYMMDD"),
-              startTime,
-              endTime,
-            };
-          }
-        );
+        deskScheduleFromHttp = result.data.deskSchedules.map((data) => {
+          return {
+            id: data.id,
+            date: moment(data.date, "YYYYMMDD"),
+            desk: {
+              id: data.desk.id,
+              name: data.desk.name,
+              detail: data.desk.detail,
+            },
+            area: data.desk.area.name,
+            type: "desk",
+          };
+        });
         deskScheduleFromHttp.sort((a, b) =>
           a.date < b.date ? -1 : a.date > b.date ? 1 : 0
         );
-        // scheduleArray.push(deskScheduleFromHttp);
-        // setDeskSchedules(deskScheduleFromHttp);
+        setDeskSchedules(deskScheduleFromHttp);
       }
 
-      if (scheduleArray.length > 0) {
+      if (roomScheduleFromHttp.length > 0 || deskScheduleFromHttp.length > 0) {
+        console.log(deskScheduleFromHttp);
+        scheduleArray = [...deskScheduleFromHttp, ...roomScheduleFromHttp];
         scheduleArray.sort((a, b) =>
           a.date < b.date ? -1 : a.date > b.date ? 1 : 0
         );
+        if (scheduleArray.length > 5) {
+          scheduleArray = scheduleArray.slice(0, 5);
+        }
         setAllScheduleList(scheduleArray);
       }
 
@@ -355,134 +350,91 @@ const HomeScreen = () => {
               deskSchedules.length > 0 &&
               allScheduleList.length > 0 &&
               allScheduleList.map((schedule) => {
-                return (
-                  <Flex
-                    key={schedule.id}
-                    bg={useColorModeValue("white", "greyColor.1000")}
-                    borderRadius="xl"
-                    px={3}
-                    py={3}
-                    my={1}
-                  >
-                    <Text
-                      fontFamily="sf-pro-text-regular"
-                      fontSize={13}
-                      fontWeight="500"
-                    >
-                      {schedule.date.format("ll")}
-                    </Text>
-                    <Text
-                      fontFamily="sf-pro-text-medium"
-                      fontSize={15}
-                      fontWeight="700"
+                if (schedule.type === "room") {
+                  console.log(schedule.type);
+                  return (
+                    <Flex
+                      key={schedule.id}
+                      bg={useColorModeValue("white", "greyColor.1000")}
+                      borderRadius="xl"
+                      px={3}
+                      py={3}
                       my={1}
                     >
-                      {schedule.room.name}
-                    </Text>
-                    <Text
-                      fontFamily="sf-pro-text-regular"
-                      fontSize={15}
-                      fontWeight="500"
-                      color={useColorModeValue(
-                        "greyColor.400",
-                        "greyColor.400"
-                      )}
-                      noOfLines={2}
-                      isTruncated
-                    >
-                      {schedule.startTime.format("HH:mm")} -
-                      {schedule.endTime.format("HH:mm")}
-                    </Text>
-                  </Flex>
-                );
-              })}
-            {roomSchedules.length > 0 &&
-              deskSchedules.length === 0 &&
-              roomSchedules.map((schedule) => {
-                return (
-                  <Flex
-                    key={schedule.id}
-                    bg={useColorModeValue("white", "greyColor.1000")}
-                    borderRadius="xl"
-                    px={3}
-                    py={3}
-                    my={1}
-                  >
-                    <Text
-                      fontFamily="sf-pro-text-regular"
-                      fontSize={13}
-                      fontWeight="500"
-                    >
-                      {schedule.date.format("ll")}
-                    </Text>
-                    <Text
-                      fontFamily="sf-pro-text-medium"
-                      fontSize={15}
-                      fontWeight="700"
+                      <Text
+                        fontFamily="sf-pro-text-regular"
+                        fontSize={13}
+                        fontWeight="500"
+                      >
+                        {schedule.date.format("ll")}
+                      </Text>
+                      <Text
+                        fontFamily="sf-pro-text-medium"
+                        fontSize={15}
+                        fontWeight="700"
+                        my={1}
+                      >
+                        {schedule.room.name}
+                      </Text>
+                      <Text
+                        fontFamily="sf-pro-text-regular"
+                        fontSize={15}
+                        fontWeight="500"
+                        color={useColorModeValue(
+                          "greyColor.400",
+                          "greyColor.400"
+                        )}
+                        noOfLines={2}
+                        isTruncated
+                      >
+                        {schedule.startTime.format("HH:mm")} -
+                        {schedule.endTime.format("HH:mm")}
+                      </Text>
+                    </Flex>
+                  );
+                } else {
+                  console.log(schedule.type);
+                  return (
+                    <Flex
+                      key={schedule.id}
+                      bg={useColorModeValue("white", "greyColor.1000")}
+                      borderRadius="xl"
+                      px={3}
+                      py={3}
                       my={1}
                     >
-                      {schedule.room.name}
-                    </Text>
-                    <Text
-                      fontFamily="sf-pro-text-regular"
-                      fontSize={15}
-                      fontWeight="500"
-                      color={useColorModeValue(
-                        "greyColor.400",
-                        "greyColor.400"
-                      )}
-                      noOfLines={2}
-                      isTruncated
-                    >
-                      {schedule.startTime.format("HH:mm")} -
-                      {schedule.endTime.format("HH:mm")}
-                    </Text>
-                  </Flex>
-                );
-              })}
-            {deskSchedules.length > 0 &&
-              roomSchedules.length === 0 &&
-              deskSchedules.map((schedule) => {
-                return (
-                  <Flex
-                    key={schedule.id}
-                    bg={useColorModeValue("white", "greyColor.1000")}
-                    borderRadius="xl"
-                    px={3}
-                    py={3}
-                    my={1}
-                  >
-                    <Text
-                      fontFamily="sf-pro-text-regular"
-                      fontSize={13}
-                      fontWeight="500"
-                    >
-                      {schedule.date.format("ll")}
-                    </Text>
-                    <Text
-                      fontFamily="sf-pro-text-medium"
-                      fontSize={15}
-                      fontWeight="700"
-                      my={1}
-                    >
-                      {schedule.desk.name}
-                    </Text>
-                    <Text
-                      fontFamily="sf-pro-text-regular"
-                      fontSize={15}
-                      fontWeight="500"
-                      color={useColorModeValue(
-                        "greyColor.400",
-                        "greyColor.400"
-                      )}
-                      noOfLines={2}
-                      isTruncated
-                    >
-                      {schedule.startTime.format("HH:mm")} -
-                      {schedule.endTime.format("HH:mm")}
-                    </Text>
-                  </Flex>
-                );
+                      <Text
+                        fontFamily="sf-pro-text-regular"
+                        fontSize={13}
+                        fontWeight="500"
+                      >
+                        {schedule.date.format("ll")}
+                      </Text>
+                      <Text
+                        fontFamily="sf-pro-text-medium"
+                        fontSize={15}
+                        fontWeight="700"
+                        my={1}
+                      >
+                        {schedule.desk.name}
+                      </Text>
+
+                      <Text
+                        fontFamily="sf-pro-text-regular"
+                        fontSize={15}
+                        fontWeight="500"
+                        color={useColorModeValue(
+                          "greyColor.400",
+                          "greyColor.400"
+                        )}
+                        noOfLines={2}
+                        isTruncated
+                      >
+                        {schedule.area}
+                      </Text>
+                    </Flex>
+                  );
+                }
               })}
           </>
         )}
