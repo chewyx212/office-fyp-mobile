@@ -45,17 +45,19 @@ import { AreaType } from "../../types/areaType";
 import { useForm, Controller } from "react-hook-form";
 import SlideFromBottom from "../../components/Ui/SlideFromBottom";
 import { RoomApi } from "../../api/RoomApi";
+import { timeList } from "../../assets/DUMMY_TIME";
 import { RoomType } from "../../types/roomType";
+import moment, { Moment } from "moment";
 
-type ScheduleRoomScreenNavigationProp = BottomTabNavigationProp<
+type AllScheduleScreenNavigationProp = BottomTabNavigationProp<
   RootStackParamList,
-  "OfficeRoomSchedule"
+  "OfficeSchedule"
 >;
-type ScheduleRoomScreenRouteProp = RouteProp<
+type AllScheduleScreenRouteProp = RouteProp<
   RootStackParamList,
-  "OfficeRoomSchedule"
+  "OfficeSchedule"
 >;
-const ScheduleRoomScreen = () => {
+const AllScheduleScreen = () => {
   const {
     control,
     handleSubmit,
@@ -63,6 +65,7 @@ const ScheduleRoomScreen = () => {
     formState: { errors },
   } = useForm<{ duration: string }>();
   const [isRefreshing, setIsRefreshing] = useState<boolean>(true);
+  const [selectedCategory, setSelectedCategory] = useState<number>(1);
   const [openBook, setOpenBook] = useState<boolean>(false);
   const [show, setShow] = useState(false);
   const [date, setDate] = useState<Date>(new Date());
@@ -71,17 +74,31 @@ const ScheduleRoomScreen = () => {
   useState<boolean>(true);
   const cancelRef = useRef(null);
   const toast = useToast();
-  const navigation = useNavigation<ScheduleRoomScreenNavigationProp>();
-  const route = useRoute<ScheduleRoomScreenRouteProp>();
+  const navigation = useNavigation<AllScheduleScreenNavigationProp>();
+  const route = useRoute<AllScheduleScreenRouteProp>();
   const dispatch = useAppDispatch();
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
   const token = useAppSelector((state) => state.auth.token);
   const selectedBranch = useAppSelector(
     (state) => state.company.selectedBranch
   );
+  const categoryList = [
+    {
+      id: 1,
+      name: "All",
+    },
+    {
+      id: 2,
+      name: "Room",
+    },
+    {
+      id: 3,
+      name: "Desk",
+    },
+  ];
   useEffect(() => {
     if (isLoggedIn && token && selectedBranch) {
-      getAllRoom();
+      getAllRoomSchedule();
     } else {
       setIsRefreshing(false);
       navigation.navigate("OfficeHome");
@@ -89,24 +106,36 @@ const ScheduleRoomScreen = () => {
     }
   }, []);
 
-  const getAllRoom = async () => {
+  const getAllRoomSchedule = async () => {
     setIsRefreshing(true);
     if (selectedBranch) {
       const result = await RoomApi.getAllRoomSchedule(selectedBranch.id);
       if (result.status === 200) {
-        console.log(result.data);
         if (result.data.length > 0) {
-          setRoomList(result.data);
-        }
-        // let branchList: BranchState[] = [];
+          let scheduleList = result.data.map((data) => {
+            let startTime = timeList.find(
+              (time) => time.id === data.startTime
+            )?.time;
+            let endTime = timeList.find(
+              (time) => time.id === data.endTime
+            )?.time;
+            return {
+              id: data.id,
+              room: data.room,
+              date: moment(data.date, "YYYYMMDD"),
+              startTime,
+              endTime,
+            };
+          });
 
-        // if (result.data.deskSchedules.length > 0) {
-        //   setDeskSchedules(result.data.roomSchedules);
-        // }
+          scheduleList.sort((a, b) =>
+            a.date < b.date ? -1 : a.date > b.date ? 1 : 0
+          );
+
+          setRoomList(scheduleList);
+        }
       }
     }
-    console.log("here");
-    console.log(date);
     setIsRefreshing(false);
   };
 
@@ -131,7 +160,10 @@ const ScheduleRoomScreen = () => {
       <VStack safeAreaTop h="100%" mx={4}>
         <ScrollView
           refreshControl={
-            <RefreshControl refreshing={isRefreshing} onRefresh={getAllRoom} />
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={getAllRoomSchedule}
+            />
           }
           _contentContainerStyle={{ pb: 16 }}
         >
@@ -160,14 +192,77 @@ const ScheduleRoomScreen = () => {
                   textAlign="center"
                   flex={1}
                   fontFamily="sf-pro-text-semibold"
-                  fontSize={20}
+                  fontSize={18}
                   fontWeight="800"
                 >
                   Scheduled Room
                 </Heading>
                 <Flex flex={1}></Flex>
               </Flex>
+              <Stack maxH={{ md: "9%" }}>
+                <ScrollView
+                  horizontal={true}
+                  showsHorizontalScrollIndicator={false}
+                  overflow="scroll"
+                  _contentContainerStyle={{
+                    m: "1%",
+                    py: "10px",
+                  }}
+                >
+                  {categoryList.map((category) => {
+                    let isActive = category.id === selectedCategory;
+                    let bgColor = useColorModeValue(
+                      "transparent",
+                      "transparent"
+                    );
+                    let textColor = useColorModeValue("muted.500", "muted.400");
+                    let pressedBgColor = useColorModeValue(
+                      "themeColor.50",
+                      "themeColoer.50"
+                    );
+                    let pressedTextColor = useColorModeValue(
+                      "themeColor.900",
+                      "themeColoer.900"
+                    );
+                    if (isActive) {
+                      bgColor = useColorModeValue(
+                        "themeColor.500",
+                        "themeColor.700"
+                      );
+                      textColor = useColorModeValue(
+                        "textColor.buttonText",
+                        "greyColor.50"
+                      );
+                    }
+                    return (
+                      <Button
+                        key={category.id}
+                        bg={bgColor}
+                        _text={{
+                          color: textColor,
+                          fontFamily: "sf-pro-text-medium",
+                          fontSize: { base: 15, md: 13 },
+                        }}
+                        _pressed={{
+                          bg: pressedBgColor,
+                          // @ts-ignore: Unreachable code error
+                          _text: { color: pressedTextColor },
+                        }}
+                        disabled={isActive}
+                        borderRadius="2xl"
+                        mx={1}
+                        onPress={() => {
+                          setSelectedCategory(category.id);
+                        }}
+                      >
+                        {category.name}
+                      </Button>
+                    );
+                  })}
+                </ScrollView>
+              </Stack>
               {roomList.length > 0 &&
+                selectedCategory === 2 &&
                 roomList.map((room) => {
                   return (
                     <Pressable key={room.id}>
@@ -198,6 +293,7 @@ const ScheduleRoomScreen = () => {
                             >
                               {room.room.name}
                             </Text>
+
                             <Text
                               color={useColorModeValue(
                                 "greyColor.400",
@@ -207,7 +303,19 @@ const ScheduleRoomScreen = () => {
                               fontSize={13}
                               fontWeight="500"
                             >
-                              {room.id}
+                              {room.date.format("ll")}
+                            </Text>
+                            <Text
+                              color={useColorModeValue(
+                                "greyColor.400",
+                                "greyColor.400"
+                              )}
+                              fontFamily="sf-pro-text-regular"
+                              fontSize={13}
+                              fontWeight="500"
+                            >
+                              {room.startTime.format("HH:mm")} -
+                              {room.endTime.format("HH:mm")}
                             </Text>
                           </Flex>
                         </Flex>
@@ -232,4 +340,4 @@ const ScheduleRoomScreen = () => {
   );
 };
 
-export default ScheduleRoomScreen;
+export default AllScheduleScreen;

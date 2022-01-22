@@ -35,11 +35,13 @@ import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { AuthApi } from "../../api/AuthApi";
 import { CompanyApi } from "../../api/CompanyApi";
 import { BranchState } from "../../types/branchType";
+import moment, { Moment } from "moment";
 import {
   saveCompany,
   saveCompanyBranch,
   selectBranch,
 } from "../../app/company/companySlice";
+import { timeList } from "../../assets/DUMMY_TIME";
 import { Platform, RefreshControl } from "react-native";
 
 type HomeScreenNavigationProp = BottomTabNavigationProp<
@@ -65,6 +67,7 @@ const HomeScreen = () => {
   const [announcements, setAnnouncements] = useState<any[]>(dummyAnnouncements);
   const [roomSchedules, setRoomSchedules] = useState<any[]>([]);
   const [deskSchedules, setDeskSchedules] = useState<any[]>([]);
+  const [allScheduleList, setAllScheduleList] = useState<any[]>([]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(true);
   const [gotCompanyOrBranch, setGotCompanyOrBranch] = useState<boolean>(false);
   const [availableBranch, setAvailableBranch] = useState<BranchState[]>([]);
@@ -94,7 +97,7 @@ const HomeScreen = () => {
   const getUserDetail = async () => {
     setIsRefreshing(true);
     const result = await AuthApi.getDetail();
-    console.log(result)
+    console.log(result);
     if (result && result.status === 200) {
       let branchList: BranchState[] = [];
       if (result.data.branches.length > 0) {
@@ -112,13 +115,64 @@ const HomeScreen = () => {
         setGotCompanyOrBranch(true);
         dispatch(saveCompanyBranch({ branches: branchList }));
       }
+      let scheduleArray = [];
       if (result.data.roomSchedules.length > 0) {
-        setRoomSchedules(result.data.roomSchedules);
+        let roomScheduleFromHttp = result.data.roomSchedules.map(
+          (data) => {
+            let startTime = timeList.find(
+              (time) => time.id === data.startTime
+            )?.time;
+            let endTime = timeList.find(
+              (time) => time.id === data.endTime
+            )?.time;
+            return {
+              id: data.id,
+              room: data.room,
+              date: moment(data.date, "YYYYMMDD"),
+              startTime,
+              endTime,
+            };
+          }
+        );
+        roomScheduleFromHttp.sort((a, b) =>
+          a.date < b.date ? -1 : a.date > b.date ? 1 : 0
+        );
+        scheduleArray.push(roomScheduleFromHttp);
+        setRoomSchedules(roomScheduleFromHttp);
       }
 
       if (result.data.deskSchedules.length > 0) {
-        setDeskSchedules(result.data.roomSchedules);
+        let deskScheduleFromHttp = result.data.roomSchedules.map(
+          (data) => {
+            let startTime = timeList.find(
+              (time) => time.id === data.startTime
+            )?.time;
+            let endTime = timeList.find(
+              (time) => time.id === data.endTime
+            )?.time;
+            return {
+              id: data.id,
+              room: data.room,
+              date: moment(data.date, "YYYYMMDD"),
+              startTime,
+              endTime,
+            };
+          }
+        );
+        deskScheduleFromHttp.sort((a, b) =>
+          a.date < b.date ? -1 : a.date > b.date ? 1 : 0
+        );
+        // scheduleArray.push(deskScheduleFromHttp);
+        // setDeskSchedules(deskScheduleFromHttp);
       }
+
+      if (scheduleArray.length > 0) {
+        scheduleArray.sort((a, b) =>
+          a.date < b.date ? -1 : a.date > b.date ? 1 : 0
+        );
+        setAllScheduleList(scheduleArray);
+      }
+
       if (branchList.length === 1) {
         dispatch(selectBranch({ branch: branchList[0] }));
       }
@@ -233,7 +287,7 @@ const HomeScreen = () => {
               </Button>
             </Flex>
             {announcements.length > 0 &&
-              announcements.map((announcement,index) => {
+              announcements.map((announcement, index) => {
                 return (
                   <Flex
                     key={index}
@@ -296,8 +350,11 @@ const HomeScreen = () => {
                 View All
               </Button>
             </Flex>
+
             {roomSchedules.length > 0 &&
-              roomSchedules.map((schedule) => {
+              deskSchedules.length > 0 &&
+              allScheduleList.length > 0 &&
+              allScheduleList.map((schedule) => {
                 return (
                   <Flex
                     key={schedule.id}
@@ -312,7 +369,7 @@ const HomeScreen = () => {
                       fontSize={13}
                       fontWeight="500"
                     >
-                      {schedule.date}
+                      {schedule.date.format("ll")}
                     </Text>
                     <Text
                       fontFamily="sf-pro-text-medium"
@@ -333,12 +390,58 @@ const HomeScreen = () => {
                       noOfLines={2}
                       isTruncated
                     >
-                      {schedule.duration} hour(s)
+                      {schedule.startTime.format("HH:mm")} -
+                      {schedule.endTime.format("HH:mm")}
+                    </Text>
+                  </Flex>
+                );
+              })}
+            {roomSchedules.length > 0 &&
+              deskSchedules.length === 0 &&
+              roomSchedules.map((schedule) => {
+                return (
+                  <Flex
+                    key={schedule.id}
+                    bg={useColorModeValue("white", "greyColor.1000")}
+                    borderRadius="xl"
+                    px={3}
+                    py={3}
+                    my={1}
+                  >
+                    <Text
+                      fontFamily="sf-pro-text-regular"
+                      fontSize={13}
+                      fontWeight="500"
+                    >
+                      {schedule.date.format("ll")}
+                    </Text>
+                    <Text
+                      fontFamily="sf-pro-text-medium"
+                      fontSize={15}
+                      fontWeight="700"
+                      my={1}
+                    >
+                      {schedule.room.name}
+                    </Text>
+                    <Text
+                      fontFamily="sf-pro-text-regular"
+                      fontSize={15}
+                      fontWeight="500"
+                      color={useColorModeValue(
+                        "greyColor.400",
+                        "greyColor.400"
+                      )}
+                      noOfLines={2}
+                      isTruncated
+                    >
+                      {schedule.startTime.format("HH:mm")} -
+                      {schedule.endTime.format("HH:mm")}
                     </Text>
                   </Flex>
                 );
               })}
             {deskSchedules.length > 0 &&
+              roomSchedules.length === 0 &&
               deskSchedules.map((schedule) => {
                 return (
                   <Flex
@@ -354,7 +457,7 @@ const HomeScreen = () => {
                       fontSize={13}
                       fontWeight="500"
                     >
-                      {new Date(schedule.datetime).toLocaleString()}
+                      {schedule.date.format("ll")}
                     </Text>
                     <Text
                       fontFamily="sf-pro-text-medium"
@@ -375,7 +478,8 @@ const HomeScreen = () => {
                       noOfLines={2}
                       isTruncated
                     >
-                      {schedule.duration} hour(s)
+                      {schedule.startTime.format("HH:mm")} -
+                      {schedule.endTime.format("HH:mm")}
                     </Text>
                   </Flex>
                 );

@@ -21,13 +21,13 @@ import {
 import HomeScreen from "../screens/office/HomeScreen";
 import ProfileScreen from "../screens/office/ProfileScreen";
 import LandingScreen from "../screens/office/LandingScreen";
-import DeskScreen from "../screens/office/DeskScreen";
 import AddDeskScreen from "../screens/office/AddDeskScreen";
+import DeskScreen from "../screens/office/DeskScreen";
 import AreaScreen from "../screens/office/AreaScreen";
 import RoomScreen from "../screens/office/RoomScreen";
 import AddRoomScreen from "../screens/office/AddRoomScreen";
 import RoomStackNavigator from "./RoomStackNavigator";
-import ScheduleRoomScreen from "../screens/office/ScheduleRoomScreen";
+import AllScheduleScreen from "../screens/office/AllScheduleScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -49,8 +49,7 @@ const TabNavigator = () => {
       <Tab.Screen name="OfficeDesk" component={DeskScreen} />
       <Tab.Screen name="OfficeArea" component={AreaScreen} />
       <Tab.Screen name="OfficeAddDesk" component={AddDeskScreen} />
-      <Tab.Screen name="OfficeRoomSchedule" component={ScheduleRoomScreen} />
-      <Tab.Screen name="OfficeDrawerSchedule" component={ScheduleRoomScreen} />
+      <Tab.Screen name="OfficeSchedule" component={AllScheduleScreen} />
       {/* <Tab.Screen name="OfficeRoom" component={RoomScreen} />
       <Tab.Screen name="OfficeAddRoom" component={AddRoomScreen} /> */}
     </Tab.Navigator>
@@ -96,15 +95,11 @@ const CustomTabBar = (props: BottomTabBarProps) => {
           );
         }}
       >
-        <Menu.Item
-          onPress={() => props.navigation.navigate("OfficeDeskSchedule")}
-        >
-          Desk
+        <Menu.Item onPress={() => props.navigation.navigate("OfficeSchedule")}>
+          View All Schedule
         </Menu.Item>
-        <Menu.Item
-          onPress={() => props.navigation.navigate("OfficeRoomSchedule")}
-        >
-          Room
+        <Menu.Item onPress={() => props.navigation.navigate("OfficeBranch")}>
+          View All Branchs
         </Menu.Item>
       </Menu>
 

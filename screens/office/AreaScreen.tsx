@@ -50,7 +50,6 @@ import { Platform, RefreshControl } from "react-native";
 import { DeskApi } from "../../api/DeskApi";
 import { AreaType } from "../../types/areaType";
 
-
 type AreaScreenNavigationProp = BottomTabNavigationProp<
   RootStackParamList,
   "OfficeArea"
@@ -108,7 +107,6 @@ const AreaScreen = () => {
         {!isRefreshing && (
           <>
             <Flex direction="row" w="100%" align="center" my={5}>
-             
               <Heading
                 fontFamily="sf-pro-text-semibold"
                 fontSize={20}
@@ -123,7 +121,7 @@ const AreaScreen = () => {
                   <Pressable
                     key={area.id}
                     onPress={() =>
-                      navigation.navigate("OfficeAddDesk", { areaId: area.id })
+                      navigation.navigate("OfficeDesk", { areaId: area.id })
                     }
                   >
                     <Flex

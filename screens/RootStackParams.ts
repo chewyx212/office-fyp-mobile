@@ -30,16 +30,18 @@ export type RootStackParamList = {
   OfficeHome: undefined;
   OfficeProfile: undefined;
   OfficeLanding: undefined;
-  OfficeDesk: undefined;
-  OfficeDeskList: undefined;
-  OfficeDeskSchedule: undefined;
-  OfficeAddDesk: {
+  OfficeDesk: {
     areaId: string;
+  };;
+  OfficeDeskList: undefined,
+  OfficeAddDesk: {
+    deskId: string;
   };
   OfficeArea: undefined;
   OfficeRoom: undefined;
   OfficeRoomList: undefined;
-  OfficeRoomSchedule: undefined;
+  officeBranch: undefined;
+  OfficeSchedule: undefined;
   OfficeAddRoomSchedule: {
     roomId: string;
   };

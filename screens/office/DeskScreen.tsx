@@ -47,31 +47,22 @@ import {
   selectBranch,
 } from "../../app/company/companySlice";
 import { Platform, RefreshControl } from "react-native";
+import { DeskApi } from "../../api/DeskApi";
+import { AreaType, AreaTypeWithDesk } from "../../types/areaType";
+import ENV from "../../env";
 
 type DeskScreenNavigationProp = BottomTabNavigationProp<
   RootStackParamList,
   "OfficeDesk"
 >;
+
+type LatLng = [Number, Number];
 type DeskScreenRouteProp = RouteProp<RootStackParamList, "OfficeDesk">;
 const DeskScreen = () => {
-  const dummyAnnouncements = [
-    {
-      time: "Monday, 24 January 2022",
-      title: "Hello, wear mask lah 😷",
-      detail:
-        "Lorem dasdasdsadummmy dummy dummy dummy ipsuasdada m dolor sqsasdasdit amet asdasdasd td consectetur athis is just some dummy dummy udmmy dummy loreom in spum text please beeeeee edummy asdadsadsagebb dipisicing asdadasdadsaadadasdasdadadasdasdad",
-    },
-    {
-      time: "Monday, 23 January 2022",
-      title: "Please Wear your mask 😷",
-      detail:
-        "Lorem dummmy dummy dummy dummy ipsuasdada m dolor sqsasdasdit amet asdasdasd td consectetur athis is just some dummy dummy udmmy dummy loreom in spum text please beeeeee edummy asdadsadsagebb dipisicing asdadasdadsaadadasdasdadadasdasdad",
-    },
-  ];
   const [deskSchedules, setDeskSchedules] = useState<any[]>([]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(true);
-  const [gotCompanyOrBranch, setGotCompanyOrBranch] = useState<boolean>(false);
-  const [availableBranch, setAvailableBranch] = useState<BranchState[]>([]);
+  const [selectedArea, setSelectedArea] = useState<AreaTypeWithDesk>();
+  // const [deskList, setDeskList] = useState<DeskType[]>([]);
   const [chooseBranchModal, setChooseBranchModal] = useState<boolean>(false);
   useState<boolean>(true);
   const cancelRef = useRef(null);
@@ -81,111 +72,143 @@ const DeskScreen = () => {
   const dispatch = useAppDispatch();
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
   const token = useAppSelector((state) => state.auth.token);
+  const { areaId } = route.params;
   const selectedBranch = useAppSelector(
     (state) => state.company.selectedBranch
   );
+
   useEffect(() => {
-    if (isLoggedIn && token) {
-      console.log(isLoggedIn);
-      console.log(token);
-      getUserDetail();
+    if (isLoggedIn && token && selectedBranch) {
+      getAreaDetail();
     } else {
       dispatch(logout());
     }
   }, []);
 
-  const getUserDetail = async () => {
+  const getAreaDetail = async () => {
     setIsRefreshing(true);
-    const result = await AuthApi.getDetail();
-    if (result.status === 200) {
-      let branchList: BranchState[] = [];
-
-      if (result.data.deskSchedules.length > 0) {
-        setDeskSchedules(result.data.roomSchedules);
+    if (areaId) {
+      const result = await DeskApi.getOneArea(areaId);
+      if (result.status === 200) {
+        console.log(result.data);
+        if (result.data) {
+          setSelectedArea({
+            id: result.data.id,
+            name: result.data.name,
+            status: result.data.status,
+            imagePath: ENV.API_URL + result.data.image,
+            desks: result.data.desks.map((desk: any) => ({
+              id: desk.id,
+              name: desk.name,
+              status: desk.status,
+              lat: desk.lat,
+              lng: desk.lng,
+            })),
+          });
+        }
       }
+    } else {
+      navigation.navigate("OfficeArea");
     }
     setIsRefreshing(false);
   };
-
-  const onCloseBranchModal = () => {
-    if (selectedBranch) {
-      setChooseBranchModal(false);
-    }
+  const onSelectDesk = (id: string) => {
+    navigation.navigate("OfficeAddDesk", { deskId: id });
   };
 
   return (
     <VStack safeAreaTop h="100%" mx={4}>
       <ScrollView
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={getUserDetail} />
+          <RefreshControl refreshing={isRefreshing} onRefresh={getAreaDetail} />
         }
         _contentContainerStyle={{ pb: 16 }}
       >
-        <Flex
-          direction="row"
-          w="100%"
-          justify="space-between"
-          align="center"
-          my={5}
-        >
-          <Flex></Flex>
-          <Heading
-            fontFamily="sf-pro-text-semibold"
-            fontSize={20}
-            fontWeight="800"
-          >
-            Scheduled Desk
-          </Heading>
-
-          <Pressable onPress={() => navigation.navigate("OfficeArea")}>
-            <Icon
-              color={useColorModeValue("themeColor.500", "greyColor.600")}
-              as={FontAwesome}
-              name="plus"
-              size={5}
-            />
-          </Pressable>
-        </Flex>
-        {deskSchedules.length > 0 &&
-          deskSchedules.map((schedule) => {
-            return (
-              <Flex
-                key={schedule.id}
-                bg={useColorModeValue("white", "greyColor.1000")}
-                borderRadius="xl"
-                px={3}
-                py={3}
-                my={1}
+        {selectedArea && (
+          <>
+            <Flex
+              direction="row"
+              w="100%"
+              justify="space-between"
+              align="center"
+              my={5}
+            >
+              <Pressable
+                flex={1}
+                onPress={() => navigation.navigate("OfficeArea")}
               >
-                <Text
-                  fontFamily="sf-pro-text-regular"
-                  fontSize={13}
-                  fontWeight="500"
-                >
-                  {new Date(schedule.datetime).toLocaleString()}
-                </Text>
-                <Text
-                  fontFamily="sf-pro-text-medium"
-                  fontSize={15}
-                  fontWeight="700"
-                  my={1}
-                >
-                  {schedule.desk.name}
-                </Text>
-                <Text
-                  fontFamily="sf-pro-text-regular"
-                  fontSize={15}
-                  fontWeight="500"
-                  color={useColorModeValue("greyColor.400", "greyColor.400")}
-                  noOfLines={2}
-                  isTruncated
-                >
-                  {schedule.duration} hour(s)
-                </Text>
-              </Flex>
-            );
-          })}
-        {deskSchedules.length < 1 && !isRefreshing && <Text>No Schedule Found</Text>}
+                <Icon
+                  pl={2}
+                  color={useColorModeValue("themeColor.500", "greyColor.600")}
+                  as={FontAwesome}
+                  name="chevron-left"
+                  size={5}
+                />
+              </Pressable>
+              <Heading
+                textAlign="center"
+                flex={1}
+                fontFamily="sf-pro-text-semibold"
+                fontSize={20}
+                fontWeight="800"
+              >
+                Select Desk
+              </Heading>
+              <Flex flex={1}></Flex>
+            </Flex>
+            {selectedArea.desks.length > 0 &&
+              selectedArea.desks.map((desk) => {
+                return (
+                  <Pressable key={desk.id} onPress={() => onSelectDesk(desk.id)}>
+                    <Flex
+                      direction="row"
+                      justify="space-between"
+                      align="center"
+                      bg={useColorModeValue("white", "greyColor.1000")}
+                      borderRadius="xl"
+                      pr={5}
+                      pl={2}
+                      py={2}
+                      my={1}
+                    >
+                      <Flex direction="row">
+                        <Flex pl={5}>
+                          <Text
+                            fontFamily="sf-pro-text-medium"
+                            fontSize={15}
+                            fontWeight="700"
+                          >
+                            {desk.name}
+                          </Text>
+                          <Text
+                            color={useColorModeValue(
+                              "greyColor.400",
+                              "greyColor.400"
+                            )}
+                            fontFamily="sf-pro-text-regular"
+                            fontSize={13}
+                            fontWeight="500"
+                            pt={3}
+                          >
+                            {desk.lat} - {desk.lng}
+                          </Text>
+                        </Flex>
+                      </Flex>
+                      <Icon
+                        color={useColorModeValue(
+                          "themeColor.500",
+                          "greyColor.600"
+                        )}
+                        as={FontAwesome}
+                        name="chevron-right"
+                        size={4}
+                      />
+                    </Flex>
+                  </Pressable>
+                );
+              })}
+          </>
+        )}
       </ScrollView>
     </VStack>
   );
