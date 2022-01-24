@@ -157,15 +157,17 @@ const HomeScreen = () => {
       }
 
       if (roomScheduleFromHttp.length > 0 || deskScheduleFromHttp.length > 0) {
-        console.log(deskScheduleFromHttp);
         scheduleArray = [...deskScheduleFromHttp, ...roomScheduleFromHttp];
         scheduleArray.sort((a, b) =>
           a.date < b.date ? -1 : a.date > b.date ? 1 : 0
         );
-        if (scheduleArray.length > 5) {
-          scheduleArray = scheduleArray.slice(0, 5);
+        let scheduleList = scheduleArray.filter((schedule) =>
+          moment().isBefore(schedule.date)
+        );
+        if (scheduleList.length > 5) {
+          scheduleList = scheduleList.slice(0, 5);
         }
-        setAllScheduleList(scheduleArray);
+        setAllScheduleList(scheduleList);
       }
 
       if (branchList.length === 1) {
@@ -177,6 +179,8 @@ const HomeScreen = () => {
         setChooseBranchModal(true);
       }
     }
+    console.log("here");
+    console.log(gotCompanyOrBranch);
     setIsRefreshing(false);
   };
 
@@ -194,6 +198,78 @@ const HomeScreen = () => {
         }
         _contentContainerStyle={{ pb: 16 }}
       >
+        {!isRefreshing && !gotCompanyOrBranch && (
+          <>
+            <Flex
+              direction="row"
+              w="100%"
+              justify="center"
+              align="center"
+              my={5}
+            >
+              <Heading
+                fontFamily="sf-pro-text-semibold"
+                fontSize={20}
+                fontWeight="800"
+              >
+                Home
+              </Heading>
+            </Flex>
+            <Flex
+              bg={useColorModeValue("white", "greyColor.1000")}
+              borderRadius="xl"
+              px={4}
+              py={5}
+            >
+              <Text
+                fontFamily="sf-pro-text-medium"
+                fontSize={17}
+                fontWeight="600"
+              >
+                Hi, {user.name}
+              </Text>
+              <Text
+                fontFamily="sf-pro-text-regular"
+                fontSize={15}
+                fontWeight="500"
+              >
+                {`${new Date().toDateString()} ${new Date().toLocaleTimeString()}`}
+              </Text>
+              <Text
+                my={2}
+                fontFamily="sf-pro-text-semibold"
+                fontSize={17}
+                fontWeight="700"
+              >
+                Check In Now
+              </Text>
+              <Button
+                bg={useColorModeValue("themeColor.600", "themeColor.300")}
+                _text={{ color: useColorModeValue("white", "greyColor.50") }}
+                _pressed={{
+                  // @ts-ignore: Unreachable code error
+                  _text: { color: useColorModeValue("white", "greyColor.50") },
+                  bg: useColorModeValue("themeColor.700", "themeColor.700"),
+                }}
+                onPress={() => navigation.navigate("OfficeCheck")}
+              >
+                Check In
+              </Button>
+            </Flex>
+            <Flex
+              bg={useColorModeValue("white", "greyColor.1000")}
+              borderRadius="xl"
+              mt={3}
+              px={4}
+              py={5}
+            >
+              <Text>
+                You are currently not invited to any company. Ask your admin to
+                add you in!
+              </Text>
+            </Flex>
+          </>
+        )}
         {!isRefreshing && selectedBranch && (
           <>
             <Flex
@@ -256,6 +332,7 @@ const HomeScreen = () => {
                   _text: { color: useColorModeValue("white", "greyColor.50") },
                   bg: useColorModeValue("themeColor.700", "themeColor.700"),
                 }}
+                onPress={() => navigation.navigate("OfficeCheck")}
               >
                 Check In
               </Button>
@@ -341,17 +418,15 @@ const HomeScreen = () => {
                   fontWeight: "700",
                   color: useColorModeValue("themeColor.700", "themeColor.700"),
                 }}
+                onPress={() => navigation.navigate("OfficeSchedule")}
               >
                 View All
               </Button>
             </Flex>
 
-            {roomSchedules.length > 0 &&
-              deskSchedules.length > 0 &&
-              allScheduleList.length > 0 &&
+            {allScheduleList.length > 0 &&
               allScheduleList.map((schedule) => {
                 if (schedule.type === "room") {
-                  console.log(schedule.type);
                   return (
                     <Flex
                       key={schedule.id}
@@ -393,7 +468,6 @@ const HomeScreen = () => {
                     </Flex>
                   );
                 } else {
-                  console.log(schedule.type);
                   return (
                     <Flex
                       key={schedule.id}

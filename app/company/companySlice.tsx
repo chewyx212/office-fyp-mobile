@@ -38,7 +38,12 @@ const companySlice = createSlice({
       AsyncStorage.setItem("company_info", JSON.stringify(state));
     },
     clearCompany: (state) => {
-      state = { ...initialState };
+      state.size = "";
+      state.id = "";
+      state.email = "";
+      state.name = "";
+      state.selectedBranch = undefined;
+      state.branches = [];
       AsyncStorage.removeItem("company_info");
     },
     saveCompanyBranch: (
@@ -60,6 +65,11 @@ const companySlice = createSlice({
   },
 });
 
-export const { saveCompany, clearCompany, updateInfo,selectBranch, saveCompanyBranch } =
-  companySlice.actions;
+export const {
+  saveCompany,
+  clearCompany,
+  updateInfo,
+  selectBranch,
+  saveCompanyBranch,
+} = companySlice.actions;
 export default companySlice.reducer;

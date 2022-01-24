@@ -9,6 +9,6 @@ export const AuthApi = {
     return axios.post("/signup", data);
   },
   getDetail: async () => {
-    return axios.get("/detail");
+    return axios.get("/company/detail");
   },
 };

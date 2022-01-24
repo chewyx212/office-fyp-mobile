@@ -19,14 +19,14 @@ import { AuthApi } from "../../api/AuthApi";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { login, logout } from "../../app/auth/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { clearCompany } from "../../app/company/companySlice";
 
 type Inputs = {
+  name: string;
   email: string;
   password: string;
 };
-type loginScreenProp = StackNavigationProp<RootStackParamList, "Login">;
-const LoginScreen = () => {
+type RegisterScreenProp = StackNavigationProp<RootStackParamList, "Register">;
+const RegisterScreen = () => {
   const {
     control,
     handleSubmit,
@@ -34,7 +34,7 @@ const LoginScreen = () => {
     formState: { errors },
   } = useForm<Inputs>();
 
-  const navigation = useNavigation<loginScreenProp>();
+  const navigation = useNavigation<RegisterScreenProp>();
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
   const dispatch = useAppDispatch();
   const toast = useToast();
@@ -63,22 +63,27 @@ const LoginScreen = () => {
 
   const onSubmit = async (field: Inputs) => {
     const payload = {
+      name: field.name,
       email: field.email,
       password: field.password,
     };
-    const result = await AuthApi.login(payload);
+    const result = await AuthApi.register(payload);
     console.log(payload);
+    console.log(result);
     if (result.status === 201) {
-      AsyncStorage.setItem("token", result.data.token);
-      AsyncStorage.setItem("user", JSON.stringify(result.data.user));
-      console.log(result.data);
-      dispatch(
-        login({
-          token: result.data.token,
-          user: result.data.user,
-        })
-      );
-      dispatch(clearCompany());
+      toast.show({
+        title: "Register Successful!",
+        status: "success",
+        placement: "top",
+      });
+      navigation.navigate('Login')
+    } else if (result.status === 409 && result.data.message) {
+      toast.show({
+        title: "Conflict!",
+        description: result.data.message,
+        status: "warning",
+        placement: "top",
+      });
     } else {
       await toast.closeAll();
       toast.show({
@@ -132,6 +137,51 @@ const LoginScreen = () => {
                           fontFamily="sf-pro-text-medium"
                           fontSize="15px"
                         >
+                          Full Name
+                        </Text>
+                      </Flex>
+                    }
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    pl={5}
+                    my={errors.name ? 4 : 2}
+                    mt={2}
+                    h={16}
+                    bg="dark.100"
+                    type="email"
+                    color="dark.800"
+                    fontFamily="sf-pro-text-regular"
+                    fontSize="15px"
+                    placeholder="Your Full Name"
+                    borderWidth={0.5}
+                    borderColor="dark.200"
+                    _focus={{
+                      borderWidth: 0.5,
+                      borderColor: "dark.200",
+                    }}
+                    isInvalid={errors.name ? true : false}
+                  />
+                </>
+              )}
+              name="name"
+            />
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <>
+                  <Input
+                    InputLeftElement={
+                      <Flex justify="center" align="center" w="40%">
+                        <Text
+                          bg="dark.100"
+                          color="dark.800"
+                          fontFamily="sf-pro-text-medium"
+                          fontSize="15px"
+                        >
                           Email
                         </Text>
                       </Flex>
@@ -157,10 +207,6 @@ const LoginScreen = () => {
                     }}
                     isInvalid={errors.email ? true : false}
                   />
-
-                  {/* {errors.email && (
-                    <Text color="red.500">This is required.</Text>
-                  )} */}
                 </>
               )}
               name="email"
@@ -225,28 +271,30 @@ const LoginScreen = () => {
               }}
               onPress={handleSubmit(onSubmit)}
             >
-              Sign In
+              Register
             </Button>
 
             <Pressable
               w="100%"
               mt={3}
               h={10}
-              onPress={() => navigation.navigate("Register")}
+              onPress={() => navigation.navigate("Login")}
             >
               <Flex direction="row" justify="center">
                 <Text
                   color="textColor.buttonText"
                   fontFamily="sf-pro-text-medium"
                   fontSize="15px"
-                ></Text>
+                >
+                  Already got account?
+                </Text>
                 <Text
                   pl={2}
                   color="themeColor.600"
                   fontFamily="sf-pro-text-medium"
                   fontSize="15px"
                 >
-                  Register Now
+                  Log In Now
                 </Text>
               </Flex>
             </Pressable>
@@ -257,4 +305,4 @@ const LoginScreen = () => {
   );
 };
 
-export default LoginScreen;
+export default RegisterScreen;

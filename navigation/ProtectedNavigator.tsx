@@ -28,6 +28,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import TabNavigator from "./TabNavigator";
 import RoomStackNavigator from "./RoomStackNavigator";
+import CheckInNavigator from "./CheckInNavigator";
 
 const Stack = createStackNavigator();
 const ProtectedNavigator = () => {
@@ -44,6 +45,7 @@ const ProtectedNavigator = () => {
     >
       <Stack.Screen name="Office" component={TabNavigator} />
       <Stack.Screen name="OfficeRoom" component={RoomStackNavigator} />
+      <Stack.Screen name="OfficeCheck" component={CheckInNavigator} />
       {/* <Stack.Screen name="Home" component={DrawerNavigator} />
       <Stack.Screen name="Order" component={OrderScreen} />
       <Stack.Screen name="Payment" component={PaymentScreen} />

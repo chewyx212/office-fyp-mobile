@@ -13,7 +13,7 @@ import { SSRProvider } from "@react-aria/ssr";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
-import { Platform } from "react-native";
+import { LogBox, Platform } from "react-native";
 import "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
@@ -117,6 +117,7 @@ export default function App() {
   if (!fontLoaded) {
     return <AppLoading />;
   }
+  LogBox.ignoreAllLogs(true)
   const changeScreenOrientation = async () => {
     const result = await ScreenOrientation.lockAsync(
       ScreenOrientation.OrientationLock.PORTRAIT_UP

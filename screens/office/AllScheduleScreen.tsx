@@ -157,7 +157,10 @@ const AllScheduleScreen = () => {
         scheduleArray.sort((a, b) =>
           a.date < b.date ? -1 : a.date > b.date ? 1 : 0
         );
-        setAllScheduleList(scheduleArray);
+        const scheduleList = scheduleArray.filter((schedule) =>
+          moment().isBefore(schedule.date)
+        );
+        setAllScheduleList(scheduleList);
       }
     }
     setIsRefreshing(false);

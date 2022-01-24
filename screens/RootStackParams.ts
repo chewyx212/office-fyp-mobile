@@ -1,6 +1,7 @@
 export type RootStackParamList = {
   Landing: undefined;
   Login: undefined;
+  Register: undefined;
   Passcode: undefined;
   Home: undefined;
   Order: {
@@ -30,19 +31,26 @@ export type RootStackParamList = {
   OfficeHome: undefined;
   OfficeProfile: undefined;
   OfficeLanding: undefined;
+  OfficeAnnouncement: undefined;
+  OfficeAnnouncementDetail: undefined;
   OfficeDesk: {
     areaId: string;
-  };;
-  OfficeDeskList: undefined,
+  };
+  OfficeDeskList: undefined;
   OfficeAddDesk: {
     deskId: string;
   };
   OfficeArea: undefined;
   OfficeRoom: undefined;
   OfficeRoomList: undefined;
-  officeBranch: undefined;
+  OfficeBranch: undefined;
   OfficeSchedule: undefined;
   OfficeAddRoomSchedule: {
     roomId: string;
+  };
+  OfficeCheck: undefined;
+  OfficeCheckIn: undefined;
+  OfficeCheckInResult: {
+    branchId: string;
   };
 };

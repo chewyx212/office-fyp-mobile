@@ -157,56 +157,61 @@ const DeskScreen = () => {
               <Flex flex={1}></Flex>
             </Flex>
             {selectedArea.desks.length > 0 &&
-              selectedArea.desks.map((desk) => {
-                return (
-                  <Pressable key={desk.id} onPress={() => onSelectDesk(desk.id)}>
-                    <Flex
-                      direction="row"
-                      justify="space-between"
-                      align="center"
-                      bg={useColorModeValue("white", "greyColor.1000")}
-                      borderRadius="xl"
-                      pr={5}
-                      pl={2}
-                      py={2}
-                      my={1}
+              selectedArea.desks
+                .filter((desk) => desk.status === true)
+                .map((desk) => {
+                  return (
+                    <Pressable
+                      key={desk.id}
+                      onPress={() => onSelectDesk(desk.id)}
                     >
-                      <Flex direction="row">
-                        <Flex pl={5}>
-                          <Text
-                            fontFamily="sf-pro-text-medium"
-                            fontSize={15}
-                            fontWeight="700"
-                          >
-                            {desk.name}
-                          </Text>
-                          <Text
-                            color={useColorModeValue(
-                              "greyColor.400",
-                              "greyColor.400"
-                            )}
-                            fontFamily="sf-pro-text-regular"
-                            fontSize={13}
-                            fontWeight="500"
-                            pt={3}
-                          >
-                            {desk.lat} - {desk.lng}
-                          </Text>
+                      <Flex
+                        direction="row"
+                        justify="space-between"
+                        align="center"
+                        bg={useColorModeValue("white", "greyColor.1000")}
+                        borderRadius="xl"
+                        pr={5}
+                        pl={2}
+                        py={2}
+                        my={1}
+                      >
+                        <Flex direction="row">
+                          <Flex pl={5}>
+                            <Text
+                              fontFamily="sf-pro-text-medium"
+                              fontSize={15}
+                              fontWeight="700"
+                            >
+                              {desk.name}
+                            </Text>
+                            <Text
+                              color={useColorModeValue(
+                                "greyColor.400",
+                                "greyColor.400"
+                              )}
+                              fontFamily="sf-pro-text-regular"
+                              fontSize={13}
+                              fontWeight="500"
+                              pt={3}
+                            >
+                              {desk.lat} - {desk.lng}
+                            </Text>
+                          </Flex>
                         </Flex>
+                        <Icon
+                          color={useColorModeValue(
+                            "themeColor.500",
+                            "greyColor.600"
+                          )}
+                          as={FontAwesome}
+                          name="chevron-right"
+                          size={4}
+                        />
                       </Flex>
-                      <Icon
-                        color={useColorModeValue(
-                          "themeColor.500",
-                          "greyColor.600"
-                        )}
-                        as={FontAwesome}
-                        name="chevron-right"
-                        size={4}
-                      />
-                    </Flex>
-                  </Pressable>
-                );
-              })}
+                    </Pressable>
+                  );
+                })}
           </>
         )}
       </ScrollView>

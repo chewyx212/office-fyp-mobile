@@ -165,62 +165,67 @@ const RoomScreen = () => {
                 <Flex flex={1}></Flex>
               </Flex>
               {roomList.length > 0 &&
-                roomList.map((room) => {
-                  return (
-                    <Pressable key={room.id} onPress={() => onSelectRoom(room)}>
-                      <Flex
-                        direction="row"
-                        justify="space-between"
-                        align="center"
-                        bg={useColorModeValue("white", "greyColor.1000")}
-                        borderRadius="xl"
-                        pr={5}
-                        pl={2}
-                        py={2}
-                        my={1}
+                roomList
+                  .filter((room) => room.status === true)
+                  .map((room) => {
+                    return (
+                      <Pressable
+                        key={room.id}
+                        onPress={() => onSelectRoom(room)}
                       >
-                        <Flex direction="row">
-                          <Image
-                            size={"lg"}
-                            mr={5}
-                            borderRadius="sm"
-                            source={require("./../../assets/snooker.jpg")}
-                            alt="room image"
-                          />
-                          <Flex>
-                            <Text
-                              fontFamily="sf-pro-text-medium"
-                              fontSize={15}
-                              fontWeight="700"
-                            >
-                              {room.name}
-                            </Text>
-                            <Text
-                              color={useColorModeValue(
-                                "greyColor.400",
-                                "greyColor.400"
-                              )}
-                              fontFamily="sf-pro-text-regular"
-                              fontSize={13}
-                              fontWeight="500"
-                            >
-                              {room.detail}
-                            </Text>
+                        <Flex
+                          direction="row"
+                          justify="space-between"
+                          align="center"
+                          bg={useColorModeValue("white", "greyColor.1000")}
+                          borderRadius="xl"
+                          pr={5}
+                          pl={2}
+                          py={2}
+                          my={1}
+                        >
+                          <Flex direction="row">
+                            <Image
+                              size={"lg"}
+                              mr={5}
+                              borderRadius="sm"
+                              source={require("./../../assets/snooker.jpg")}
+                              alt="room image"
+                            />
+                            <Flex>
+                              <Text
+                                fontFamily="sf-pro-text-medium"
+                                fontSize={15}
+                                fontWeight="700"
+                              >
+                                {room.name}
+                              </Text>
+                              <Text
+                                color={useColorModeValue(
+                                  "greyColor.400",
+                                  "greyColor.400"
+                                )}
+                                fontFamily="sf-pro-text-regular"
+                                fontSize={13}
+                                fontWeight="500"
+                              >
+                                {room.detail}
+                              </Text>
+                            </Flex>
                           </Flex>
+                          <Icon
+                            color={useColorModeValue(
+                              "themeColor.500",
+                              "greyColor.600"
+                            )}
+                            as={FontAwesome}
+                            name="chevron-right"
+                            size={4}
+                          />
                         </Flex>
-                        <Icon
-                          color={useColorModeValue(
-                            "themeColor.500",
-                            "greyColor.600"
-                          )}
-                          as={FontAwesome}
-                          name="chevron-right"
-                          size={4}
-                        />
-                      </Flex>
-                    </Pressable>
-                  );
-                })}
+                      </Pressable>
+                    );
+                  })}
             </>
           )}
         </ScrollView>

@@ -106,14 +106,35 @@ const AreaScreen = () => {
       >
         {!isRefreshing && (
           <>
-            <Flex direction="row" w="100%" align="center" my={5}>
+            <Flex
+              direction="row"
+              w="100%"
+              justify="space-between"
+              align="center"
+              my={5}
+            >
+              <Pressable
+                flex={1}
+                onPress={() => navigation.navigate("OfficeHome")}
+              >
+                <Icon
+                  pl={2}
+                  color={useColorModeValue("themeColor.500", "greyColor.600")}
+                  as={FontAwesome}
+                  name="chevron-left"
+                  size={5}
+                />
+              </Pressable>
               <Heading
+                textAlign="center"
+                flex={1}
                 fontFamily="sf-pro-text-semibold"
                 fontSize={20}
                 fontWeight="800"
               >
                 Choose Area
               </Heading>
+              <Flex flex={1}></Flex>
             </Flex>
             {areaList.length > 0 &&
               areaList.map((area) => {
